@@ -45,6 +45,8 @@ export default function Menu() {
       ...prev,
       [itemId]: quantity
     }));
+    // Also update cart context if item is already in cart
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id: itemId, quantity } });
   };
 
   const closeModal = () => {
