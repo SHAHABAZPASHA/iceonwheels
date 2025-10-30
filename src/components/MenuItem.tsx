@@ -1,3 +1,4 @@
+"use client";
 import { IceCreamItem } from '../types';
 
 interface MenuItemProps {
