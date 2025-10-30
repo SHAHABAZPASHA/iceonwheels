@@ -28,9 +28,10 @@ export default function AdminLogin() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Get users from localStorage
-    const storedUsers = localStorage.getItem('adminUsers');
+
+    // Force-initialize admin users if not present
     let users: User[] = [];
+    const storedUsers = localStorage.getItem('adminUsers');
     if (storedUsers) {
       try {
         users = JSON.parse(storedUsers);
@@ -38,11 +39,16 @@ export default function AdminLogin() {
         users = [];
       }
     }
-    // Always set Irfan as admin before checking credentials
-    users = users.map(u =>
-      u.username === 'irfan' ? { ...u, role: 'admin' as 'admin' } : u
-    );
-    if (!users.some((u: User) => u.username === 'admin')) {
+    if (!users.some(u => u.username === 'irfan')) {
+      users.push({
+        id: 'irfan-id',
+        username: 'irfan',
+        password: 'irfan123',
+        role: 'admin',
+        name: 'Irfan'
+      });
+    }
+    if (!users.some(u => u.username === 'admin')) {
       users.push({
         id: 'admin-opw',
         username: 'admin',
@@ -51,6 +57,10 @@ export default function AdminLogin() {
         name: 'Admin User'
       });
     }
+    // Always set Irfan as admin before checking credentials
+    users = users.map(u =>
+      u.username === 'irfan' ? { ...u, role: 'admin' as 'admin' } : u
+    );
     localStorage.setItem('adminUsers', JSON.stringify(users));
 
     const user = users.find((u: User) => u.username === username && u.password === password);
