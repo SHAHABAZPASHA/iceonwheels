@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { fetchCart, saveCart } from '../utils/firestoreCart';
 import { CartItem, PromoCode } from '../types';
 
 interface CartState {
@@ -114,6 +115,27 @@ const CartContext = createContext<{
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  // Replace with real user ID if you have authentication
+  const userId = typeof window !== 'undefined' ? (localStorage.getItem('cartUserId') || 'guest') : 'guest';
+
+  useEffect(() => {
+    async function loadCart() {
+      const items = await fetchCart(userId);
+      if (items.length > 0) {
+        dispatch({ type: 'CLEAR_CART' });
+        items.forEach(item => {
+          dispatch({ type: 'ADD_ITEM', payload: item });
+        });
+      }
+    }
+    loadCart();
+  }, [userId]);
+
+  useEffect(() => {
+    if (state.items.length > 0) {
+      saveCart(userId, state.items);
+    }
+  }, [state.items, userId]);
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>

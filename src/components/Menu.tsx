@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { IceCreamItem, CartItem } from '../types';
-import { iceCreamMenu } from '../data/menu';
+import { fetchMenuItems } from '../utils/firestoreMenu';
 import MenuItem from './MenuItem';
 import CustomizationModal from './CustomizationModal';
 import { useCart } from '../context/CartContext';
@@ -13,80 +13,16 @@ export default function Menu() {
   const [selectedItem, setSelectedItem] = useState<IceCreamItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
-  const [menuData, setMenuData] = useState<IceCreamItem[]>(iceCreamMenu);
+  const [menuData, setMenuData] = useState<IceCreamItem[]>([]);
   const { dispatch } = useCart();
 
-  // Load admin-added items and merge with static menu
+  // Load menu items from Firestore
   useEffect(() => {
-    const loadMenuData = () => {
-      const adminItems = localStorage.getItem('adminMenuItems');
-      if (adminItems) {
-        try {
-          const parsedAdminItems = JSON.parse(adminItems);
-          // Convert admin MenuItem to IceCreamItem format (include all items, not just available)
-          const convertedAdminItems: IceCreamItem[] = parsedAdminItems.map((item: any) => ({
-            id: item.id,
-            name: item.name,
-            description: item.description,
-            price: item.price,
-            emoji: item.image ? '' : '🍨',
-            category: item.category,
-            image: item.image,
-            available: item.available !== undefined ? item.available : true
-          }));
-
-          // Merge with static menu data, replacing items with same ID (admin versions take priority)
-          const mergedMenu = [...iceCreamMenu];
-          convertedAdminItems.forEach(adminItem => {
-            const existingIndex = mergedMenu.findIndex(staticItem => staticItem.id === adminItem.id);
-            if (existingIndex !== -1) {
-              // Always use admin image if present, else fallback to static image or placeholder
-              mergedMenu[existingIndex] = {
-                ...mergedMenu[existingIndex],
-                ...adminItem,
-                image: adminItem.image && adminItem.image.trim() !== ''
-                  ? adminItem.image
-                  : mergedMenu[existingIndex].image || '/placeholder-food.jpg'
-              };
-            } else {
-              mergedMenu.push({
-                ...adminItem,
-                image: adminItem.image && adminItem.image.trim() !== ''
-                  ? adminItem.image
-                  : '/placeholder-food.jpg'
-              });
-            }
-          });
-          setMenuData(mergedMenu);
-        } catch (error) {
-          console.error('Error loading admin menu items:', error);
-          setMenuData(iceCreamMenu);
-        }
-      } else {
-        setMenuData(iceCreamMenu);
-      }
-    };
-
-    loadMenuData();
-
-    // Listen for storage changes to update menu when admin adds items
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'adminMenuItems') {
-        loadMenuData();
-      }
-    };
-
-    // Listen for custom menu update events (for same-tab updates)
-    const handleMenuUpdate = () => {
-      loadMenuData();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('menuItemsUpdated', handleMenuUpdate);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('menuItemsUpdated', handleMenuUpdate);
-    };
+    async function loadMenu() {
+      const items = await fetchMenuItems();
+      setMenuData(items);
+    }
+    loadMenu();
   }, []);
 
   const categories = ['All', ...Array.from(new Set(menuData.map(item => item.category)))];
