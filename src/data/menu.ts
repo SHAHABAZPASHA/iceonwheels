@@ -9,7 +9,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 39,
     emoji: '🍦',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Vanilla.jpg'
+    image: '/images/menu/ice-cream/Vanilla.jpg'
   },
   {
     id: 'strawberry',
@@ -18,7 +18,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 39,
     emoji: '🍓',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Strawberry.jpg'
+    image: '/images/menu/ice-cream/Strawberry.jpg'
   },
   {
     id: 'mango',
@@ -27,7 +27,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🥭',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Mango.webp'
+    image: '/images/menu/ice-cream/Mango.webp'
   },
   {
     id: 'cookie-cream',
@@ -36,7 +36,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🍪',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Cookie and Cream.jpeg'
+    image: '/images/menu/ice-cream/Cookie and Cream.jpeg'
   },
   {
     id: 'kaju-kishmish',
@@ -45,7 +45,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🥜',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Kaju Kishmish.jpg'
+    image: '/images/menu/ice-cream/Kaju Kishmish.jpg'
   },
   {
     id: 'chocolate',
@@ -54,7 +54,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🍫',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Chocolate.jpg'
+    image: '/images/menu/ice-cream/Chocolate.jpg'
   },
   {
     id: 'butterscotch',
@@ -63,7 +63,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '�',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Butterscotch.jpg'
+    image: '/images/menu/ice-cream/Butterscotch.jpg'
   },
   {
     id: 'dry-fruits',
@@ -72,7 +72,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🌰',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Dry Fruits.avif'
+    image: '/images/menu/ice-cream/Dry Fruits.avif'
   },
   {
     id: 'fig-honey',
@@ -81,7 +81,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🍯',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Fig & Honey.jpg'
+    image: '/images/menu/ice-cream/Fig & Honey.jpg'
   },
   {
     id: 'black-current',
@@ -90,7 +90,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🫐',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/Black Current.jpg'
+    image: '/images/menu/ice-cream/Black Current.jpg'
   },
   {
     id: 'pista',
@@ -99,7 +99,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🥜',
     category: 'Ice Cream',
-  image: '/images/menu/ice-cream/pista.jpg'
+    image: '/images/menu/ice-cream/pista.jpg'
   },
 
   // MILKSHAKES
@@ -110,7 +110,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 89,
     emoji: '🥤',
     category: 'Milkshakes',
-  image: '/images/menu/milk-shake/classic vanila.jpg'
+    image: '/images/menu/milk-shake/classic vanila.jpg'
   },
   {
     id: 'berry-blast',
@@ -573,7 +573,17 @@ export const iceCreamMenu: IceCreamItem[] = [
   {
     id: 'loaded-twister',
     name: 'Loaded Twister',
-    description: 'Loaded potato twister',
+    description: 'Loaded potato twister',    git add public/images/menu/french-fries public/images/menu/fruit-juice public/images/menu/hot-chocolate-bowl public/images/menu/potato-twister
+    git commit -m "Add new image folders with hyphens for menu categories"
+    git push    git add public/images/menu/french-fries public/images/menu/fruit-juice public/images/menu/hot-chocolate-bowl public/images/menu/potato-twister
+    git commit -m "Add new image folders with hyphens for menu categories"
+    git push    git add public/images/menu/french-fries public/images/menu/fruit-juice public/images/menu/hot-chocolate-bowl public/images/menu/potato-twister
+    git commit -m "Add new image folders with hyphens for menu categories"
+    git push    git add public/images/menu/french-fries public/images/menu/fruit-juice public/images/menu/hot-chocolate-bowl public/images/menu/potato-twister
+    git commit -m "Add new image folders with hyphens for menu categories"
+    git push    git add public/images/menu/french-fries public/images/menu/fruit-juice public/images/menu/hot-chocolate-bowl public/images/menu/potato-twister
+    git commit -m "Add new image folders with hyphens for menu categories"
+    git push
     price: 99,
     emoji: '🥔',
     category: 'Potato Twister',
@@ -587,7 +597,8 @@ export const iceCreamMenu: IceCreamItem[] = [
     description: 'Ice cream in a taco shell',
     price: 79,
     emoji: '🌮',
-    category: 'Special Items'
+    category: 'Special Items',
+    image: '/images/menu/special items/Taco Ice Cream.webp'
   },
 
   // FRENCH FRIES
