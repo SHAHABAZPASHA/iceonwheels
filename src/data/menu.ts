@@ -9,7 +9,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 39,
     emoji: '🍦',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Vanilla.jpg'
+  image: '/images/menu/ice-cream/Vanilla.jpg'
   },
   {
     id: 'strawberry',
@@ -18,7 +18,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 39,
     emoji: '🍓',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Strawberry.jpg'
+  image: '/images/menu/ice-cream/Strawberry.jpg'
   },
   {
     id: 'mango',
@@ -27,7 +27,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🥭',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Mango.webp'
+  image: '/images/menu/ice-cream/Mango.webp'
   },
   {
     id: 'cookie-cream',
@@ -36,7 +36,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🍪',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Cookie and Cream.jpeg'
+  image: '/images/menu/ice-cream/Cookie and Cream.jpeg'
   },
   {
     id: 'kaju-kishmish',
@@ -45,7 +45,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🥜',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Kaju Kishmish.jpg'
+  image: '/images/menu/ice-cream/Kaju Kishmish.jpg'
   },
   {
     id: 'chocolate',
@@ -54,7 +54,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 59,
     emoji: '🍫',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Chocolate.jpg'
+  image: '/images/menu/ice-cream/Chocolate.jpg'
   },
   {
     id: 'butterscotch',
@@ -63,7 +63,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '�',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Butterscotch.jpg'
+  image: '/images/menu/ice-cream/Butterscotch.jpg'
   },
   {
     id: 'dry-fruits',
@@ -72,7 +72,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🌰',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Dry Fruits.avif'
+  image: '/images/menu/ice-cream/Dry Fruits.avif'
   },
   {
     id: 'fig-honey',
@@ -81,7 +81,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🍯',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Fig & Honey.jpg'
+  image: '/images/menu/ice-cream/Fig & Honey.jpg'
   },
   {
     id: 'black-current',
@@ -90,7 +90,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🫐',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/Black Current.jpg'
+  image: '/images/menu/ice-cream/Black Current.jpg'
   },
   {
     id: 'pista',
@@ -99,7 +99,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 69,
     emoji: '🥜',
     category: 'Ice Cream',
-    image: '/images/menu/ice cream/pista.jpg'
+  image: '/images/menu/ice-cream/pista.jpg'
   },
 
   // MILKSHAKES
@@ -110,7 +110,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 89,
     emoji: '🥤',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/classic vanila.jpg'
+  image: '/images/menu/milk-shake/classic vanila.jpg'
   },
   {
     id: 'berry-blast',
@@ -119,7 +119,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 99,
     emoji: '🫐',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/berry blast.webp'
+  image: '/images/menu/milk-shake/berry blast.webp'
   },
   {
     id: 'macho-mango',
@@ -128,7 +128,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 89,
     emoji: '🥭',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Macho Mango.jpg'
+  image: '/images/menu/milk-shake/Macho Mango.jpg'
   },
   {
     id: 'banana-blast',
@@ -137,7 +137,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 89,
     emoji: '🍌',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Banana Blast.jpeg'
+  image: '/images/menu/milk-shake/Banana Blast.jpeg'
   },
   {
     id: 'coffee-current',
@@ -146,7 +146,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 89,
     emoji: '☕',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Coffee Current.webp'
+  image: '/images/menu/milk-shake/Coffee Current.webp'
   },
   {
     id: 'choco-kitkat',
@@ -155,7 +155,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🍫',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Choco KitKat.jpg'
+  image: '/images/menu/milk-shake/Choco KitKat.jpg'
   },
   {
     id: 'special-snickers',
@@ -164,7 +164,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🍫',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Special Snickers.jpg'
+  image: '/images/menu/milk-shake/Special Snickers.jpg'
   },
   {
     id: 'fantastic-5',
@@ -173,7 +173,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥤',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Fentastic 5.jpg'
+  image: '/images/menu/milk-shake/Fentastic 5.jpg'
   },
   {
     id: 'kesar-badam',
@@ -182,7 +182,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥜',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Kesar Badam.jpg'
+  image: '/images/menu/milk-shake/Kesar Badam.jpg'
   },
   {
     id: 'strawberry-milkshake',
@@ -191,7 +191,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🍓',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Strawberry.jpg'
+  image: '/images/menu/milk-shake/Strawberry.jpg'
   },
   {
     id: 'golden-gulkand-kesar',
@@ -200,7 +200,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥤',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Golden Gulkand with Kesar.jpg'
+  image: '/images/menu/milk-shake/Golden Gulkand with Kesar.jpg'
   },
   {
     id: 'classic-caramel',
@@ -209,7 +209,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🍯',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Classic Caramel.jpg'
+  image: '/images/menu/milk-shake/Classic Caramel.jpg'
   },
   {
     id: 'wonder-oreo',
@@ -218,7 +218,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '�',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Wonder Oreo.jpg'
+  image: '/images/menu/milk-shake/Wonder Oreo.jpg'
   },
   {
     id: 'peanut-punch',
@@ -227,7 +227,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥜',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Penut Punch.jpg'
+  image: '/images/menu/milk-shake/Penut Punch.jpg'
   },
   {
     id: 'oreo-mint-masti',
@@ -236,7 +236,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🍪',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Oreo Mint Masti.jpg'
+  image: '/images/menu/milk-shake/Oreo Mint Masti.jpg'
   },
   {
     id: 'no-tell-ah',
@@ -245,7 +245,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥤',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/No tell Ah !.jpg'
+  image: '/images/menu/milk-shake/No tell Ah !.jpg'
   },
   {
     id: 'chiku-milkshake',
@@ -254,7 +254,7 @@ export const iceCreamMenu: IceCreamItem[] = [
     price: 129,
     emoji: '🥭',
     category: 'Milkshakes',
-    image: '/images/menu/milk shake/Chiku.jpg'
+  image: '/images/menu/milk-shake/Chiku.jpg'
   },
 
   // FRUIT JUICE
