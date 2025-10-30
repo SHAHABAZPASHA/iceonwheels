@@ -7,7 +7,10 @@ export default function Footer() {
           <h3 className="text-xl font-bold">Ice on Wheels</h3>
         </div>
         <p>&copy; 2025 Ice on Wheels. All rights reserved.</p>
-        <p className="mt-2">Scan QR code to order your favorite ice cream!</p>
+        <div className="mt-4 flex flex-col items-center">
+          <p>Scan QR code to order your favorite ice cream!</p>
+          <img src="/ice-on-wheels-menu-qr.png" alt="Order QR Code" className="w-32 h-32 mt-2 rounded shadow-lg border border-gray-300 bg-white" />
+        </div>
       </div>
     </footer>
   );
