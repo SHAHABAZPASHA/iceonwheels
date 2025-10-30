@@ -281,10 +281,13 @@ export default function OrdersManagement() {
     }
   };
 
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'all') return true;
-    return order.status === filter;
-  });
+  // Show new orders on top
+  const filteredOrders = orders
+    .filter(order => {
+      if (filter === 'all') return true;
+      return order.status === filter;
+    })
+    .slice().reverse();
 
   const getStatusColor = (status: Order['status']) => {
     switch (status) {
