@@ -118,23 +118,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Replace with real user ID if you have authentication
   const userId = typeof window !== 'undefined' ? (localStorage.getItem('cartUserId') || 'guest') : 'guest';
 
+
   useEffect(() => {
     async function loadCart() {
-      const items = await fetchCart(userId);
-      if (items.length > 0) {
+      try {
+        const items = await fetchCart(userId);
         dispatch({ type: 'CLEAR_CART' });
-        items.forEach(item => {
-          dispatch({ type: 'ADD_ITEM', payload: item });
-        });
+        if (items.length > 0) {
+          items.forEach(item => {
+            dispatch({ type: 'ADD_ITEM', payload: item });
+          });
+        }
+      } catch (error) {
+        console.error('Error loading cart from Firestore:', error);
       }
     }
     loadCart();
   }, [userId]);
 
   useEffect(() => {
-    if (state.items.length > 0) {
-      saveCart(userId, state.items);
+    async function syncCart() {
+      try {
+        await saveCart(userId, state.items);
+      } catch (error) {
+        console.error('Error saving cart to Firestore:', error);
+      }
     }
+    syncCart();
   }, [state.items, userId]);
 
   return (
