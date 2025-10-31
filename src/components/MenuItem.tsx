@@ -14,9 +14,11 @@ export default function MenuItem({ item, onCustomize, quantity, onQuantityChange
   const isAvailable = item.available !== false;
   const showUnavailable = !isAvailable;
   const increaseQuantity = () => {
+    console.log('Increase quantity clicked for', item.name, 'current:', quantity);
     if (onQuantityChange) onQuantityChange(quantity + 1);
   };
   const decreaseQuantity = () => {
+    console.log('Decrease quantity clicked for', item.name, 'current:', quantity);
     if (onQuantityChange) onQuantityChange(quantity > 1 ? quantity - 1 : 1);
   };
   return (

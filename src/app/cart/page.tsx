@@ -11,11 +11,13 @@ export default function CartPage() {
   const [promoError, setPromoError] = useState('');
 
   const updateQuantity = (id: string, quantity: number) => {
+    console.log('Cart quantity update for', id, 'to', quantity);
     if (quantity <= 0) {
       dispatch({ type: 'REMOVE_ITEM', payload: id });
     } else {
       dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
     }
+    console.log('Cart state after update:', state);
   };
 
   const removeItem = (id: string) => {
