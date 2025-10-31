@@ -3,6 +3,8 @@
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { fetchCart, saveCart } from '../utils/firestoreCart';
 import { CartItem, PromoCode } from '../types';
+import { db } from '../utils/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 interface CartState {
   items: CartItem[];
@@ -121,8 +123,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Real-time Firestore sync
-    const { db } = require('../utils/firebase');
-    const { doc, onSnapshot } = require('firebase/firestore');
     const cartDocRef = doc(db, 'carts', userId);
     const unsubscribe = onSnapshot(
       cartDocRef,
