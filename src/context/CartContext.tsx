@@ -120,20 +120,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 
   useEffect(() => {
-    async function loadCart() {
-      try {
-        const items = await fetchCart(userId);
-        dispatch({ type: 'CLEAR_CART' });
-        if (items.length > 0) {
-          items.forEach(item => {
-            dispatch({ type: 'ADD_ITEM', payload: item });
-          });
+    // Real-time Firestore sync
+    const { db } = require('../utils/firebase');
+    const { doc, onSnapshot } = require('firebase/firestore');
+    const cartDocRef = doc(db, 'carts', userId);
+    const unsubscribe = onSnapshot(
+      cartDocRef,
+      (snapshot: any) => {
+        if (snapshot.exists()) {
+          const items: CartItem[] = snapshot.data().items || [];
+          dispatch({ type: 'CLEAR_CART' });
+          if (items.length > 0) {
+            items.forEach((item: CartItem) => {
+              dispatch({ type: 'ADD_ITEM', payload: item });
+            });
+          }
+        } else {
+          dispatch({ type: 'CLEAR_CART' });
         }
-      } catch (error) {
-        console.error('Error loading cart from Firestore:', error);
+      },
+      (error: any) => {
+        console.error('Error with Firestore cart snapshot:', error);
       }
-    }
-    loadCart();
+    );
+    return () => unsubscribe();
   }, [userId]);
 
   useEffect(() => {
