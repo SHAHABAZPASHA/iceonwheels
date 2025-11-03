@@ -10,7 +10,7 @@ export default function Header() {
   const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="bg-blue-600 text-white shadow-lg">
+    <header className="bg-blue-600 text-white shadow-lg relative">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 text-2xl font-bold">
@@ -61,7 +61,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/cart"
-                className="hover:text-blue-200 transition-colors relative"
+                className="hover:text-blue-200 transition-colors flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Cart
@@ -75,6 +75,23 @@ export default function Header() {
           </nav>
         )}
       </div>
+
+      {/* Floating cart button for mobile */}
+      <Link
+        href="/cart"
+        className="md:hidden fixed bottom-6 right-6 z-50 bg-blue-600 shadow-lg rounded-full p-4 flex items-center justify-center"
+        style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+        aria-label="View Cart"
+      >
+        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
+        </svg>
+        {itemCount > 0 && (
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {itemCount}
+          </span>
+        )}
+      </Link>
     </header>
   );
 }

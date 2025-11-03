@@ -1,3 +1,17 @@
+export interface Poster {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  type: 'promotion' | 'announcement' | 'event' | 'seasonal';
+  priority: 'low' | 'medium' | 'high';
+  startDate: string;
+  endDate: string;
+  active: boolean;
+  targetAudience?: string[];
+  clickUrl?: string;
+  createdAt: string;
+}
 export interface IceCreamItem {
   id: string;
   name: string;
@@ -7,6 +21,9 @@ export interface IceCreamItem {
   category: string;
   image?: string; // Optional image field for admin-uploaded images
   available?: boolean; // Optional availability flag for menu item
+  popularity?: number; // Number of times ordered (admin only)
+  customizations?: string[]; // Customizations (admin only)
+  createdAt?: string; // Creation date (admin only)
 }
 
 export interface CartItem extends IceCreamItem {

@@ -1,19 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
-interface User {
-  id: string;
-  username: string;
-  password: string;
-  role: 'owner' | 'partner' | 'manager' | 'admin';
-  name: string;
-}
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { db } from '../../../utils/firebase';
+
+
 
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -24,54 +21,13 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-
-    // Force-initialize admin users if not present
-    let users: User[] = [];
-    const storedUsers = localStorage.getItem('adminUsers');
-    if (storedUsers) {
-      try {
-        users = JSON.parse(storedUsers);
-      } catch {
-        users = [];
-      }
-    }
-    if (!users.some(u => u.username === 'irfan')) {
-      users.push({
-        id: 'irfan-id',
-        username: 'irfan',
-        password: 'irfan123',
-        role: 'admin',
-        name: 'Irfan'
-      });
-    }
-    if (!users.some(u => u.username === 'admin')) {
-      users.push({
-        id: 'admin-opw',
-        username: 'admin',
-        password: 'admin@iceonwheels',
-        role: 'admin',
-        name: 'Admin User'
-      });
-    }
-    // Always set Irfan as admin before checking credentials
-    users = users.map(u =>
-      u.username === 'irfan' ? { ...u, role: 'admin' as 'admin' } : u
-    );
-    localStorage.setItem('adminUsers', JSON.stringify(users));
-
-    const user = users.find((u: User) => u.username === username && u.password === password);
-
-    if (user) {
-      localStorage.setItem('adminUser', JSON.stringify(user));
+    try {
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password);
       router.push('/admin/dashboard');
-    } else {
-      setError('Invalid username or password');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
     }
-
     setLoading(false);
   };
 
@@ -97,18 +53,18 @@ export default function AdminLogin() {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
               />
             </div>
 

@@ -38,6 +38,14 @@ interface Order {
 }
 
 export default function OrdersManagement() {
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchDate, setSearchDate] = useState('');
+  // Remove duplicate handleSearch
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setSearchDate('');
+  };
   const [user, setUser] = useState<User | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<string>('all');
@@ -48,156 +56,100 @@ export default function OrdersManagement() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('adminUser');
-        router.push('/admin/login');
-      }
-    } else {
-      router.push('/admin/login');
-    }
+    // TODO: Replace with Firebase Auth user check if needed
+    setUser({ id: 'admin', username: 'admin', password: '', role: 'admin', name: 'Admin' });
     setIsLoading(false);
-  }, [router]);
+  }, []);
 
+  // Fetch orders from Firestore
   useEffect(() => {
-    if (!isLoading && user === null) {
-      router.push('/admin/login');
-      return;
-    }
+    if (isLoading || !user) return;
+    import('../../../../utils/firestoreOrders').then(({ fetchOrders }) => {
+      fetchOrders().then((results) => {
+        setOrders(Array.isArray(results)
+          ? (results.filter(o =>
+              o.id && o.customerName && o.customerPhone && o.items && o.total && o.status && o.orderType && o.paymentMethod && o.paymentStatus && o.timestamp
+            ) as Order[])
+          : []);
+      });
+    });
+  }, [isLoading, user]);
 
-    if (!isLoading && user) {
-      // Check permissions - only owner, partner, and admin can manage orders
-      if (user.role !== 'owner' && user.role !== 'partner' && user.role !== 'admin') {
-        router.push('/admin/dashboard');
-        return;
-      }
-    }
-  }, [user, isLoading, router]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    // Load orders from localStorage or use mock data
-    const storedOrders = localStorage.getItem('adminOrders');
-    if (storedOrders) {
-      setOrders(JSON.parse(storedOrders));
-    } else {
-      // Mock orders data
-      const mockOrders: Order[] = [
-        {
-          id: 'ORD001',
-          customerName: 'Rahul Sharma',
-          customerPhone: '+91 9876543210',
-          customerEmail: 'rahul@example.com',
-          items: [
-            {
-              id: '1',
-              name: 'Vanilla Ice Cream',
-              price: 80,
-              quantity: 2,
-              customizations: ['Chocolate Sauce', 'Sprinkles']
-            },
-            {
-              id: '2',
-              name: 'Chocolate Delight',
-              price: 90,
-              quantity: 1
-            }
-          ],
-          total: 250,
-          status: 'confirmed',
-          orderType: 'pickup',
-          paymentMethod: 'upi',
-          paymentStatus: 'paid',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          notes: 'Extra chocolate sauce please'
-        },
-        {
-          id: 'ORD002',
-          customerName: 'Priya Patel',
-          customerPhone: '+91 8765432109',
-          items: [
-            {
-              id: '3',
-              name: 'Strawberry Sundae',
-              price: 100,
-              quantity: 3,
-              customizations: ['Extra Strawberries', 'Wafer']
-            }
-          ],
-          total: 300,
-          status: 'preparing',
-          orderType: 'delivery',
-          paymentMethod: 'cash',
-          paymentStatus: 'pending',
-          timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          deliveryAddress: '123 MG Road, Bangalore - 560001',
-          notes: 'Ring doorbell twice'
-        },
-        {
-          id: 'ORD003',
-          customerName: 'Amit Kumar',
-          customerPhone: '+91 7654321098',
-          items: [
-            {
-              id: '1',
-              name: 'Vanilla Ice Cream',
-              price: 80,
-              quantity: 1
-            }
-          ],
-          total: 80,
-          status: 'ready',
-          orderType: 'pickup',
-          paymentMethod: 'card',
-          paymentStatus: 'paid',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-        }
-      ];
-      setOrders(mockOrders);
-      localStorage.setItem('adminOrders', JSON.stringify(mockOrders));
-    }
-  }, [user]);
+  // Search handler for Firestore
+  const handleSearch = async () => {
+    import('../../../../utils/firestoreOrders').then(({ searchOrders }) => {
+      searchOrders({
+        orderId: searchTerm,
+        name: searchTerm,
+        phone: searchTerm,
+        date: searchDate
+      }).then((results) => {
+        setOrders(Array.isArray(results)
+          ? (results.filter(o =>
+              o.id && o.customerName && o.customerPhone && o.items && o.total && o.status && o.orderType && o.paymentMethod && o.paymentStatus && o.timestamp
+            ) as Order[])
+          : []);
+      });
+    });
+  };
 
   const saveOrders = (updatedOrders: Order[]) => {
     setOrders(updatedOrders);
-    localStorage.setItem('adminOrders', JSON.stringify(updatedOrders));
+    // All order state is now Firestore-only
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: Order['status']) => {
-    const updatedOrders = orders.map(order =>
-      order.id === orderId ? { ...order, status: newStatus } : order
-    );
-    saveOrders(updatedOrders);
+  const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
+    // Update status in Firestore
+    import('../../../../utils/firestoreOrders').then(async ({ fetchOrders, saveOrder }) => {
+      const allOrders = await fetchOrders();
+      const orderToUpdate = allOrders.find(o => o.id === orderId);
+      if (orderToUpdate) {
+        const updatedOrder = { ...orderToUpdate, status: newStatus };
+        await saveOrder(updatedOrder);
+        // Refresh orders
+        const refreshed = await fetchOrders();
+        setOrders(Array.isArray(refreshed)
+          ? (refreshed.filter(o =>
+              o.id && o.customerName && o.customerPhone && o.items && o.total && o.status && o.orderType && o.paymentMethod && o.paymentStatus && o.timestamp
+            ) as Order[])
+          : []);
+      }
+    });
   };
 
-  const updatePaymentStatus = (orderId: string, newStatus: Order['paymentStatus']) => {
-    const updatedOrders = orders.map(order =>
-      order.id === orderId ? { ...order, paymentStatus: newStatus } : order
-    );
-    saveOrders(updatedOrders);
+  const updatePaymentStatus = async (orderId: string, newStatus: Order['paymentStatus']) => {
+    import('../../../../utils/firestoreOrders').then(async ({ fetchOrders, saveOrder }) => {
+      const allOrders = await fetchOrders();
+      const orderToUpdate = allOrders.find(o => o.id === orderId);
+      if (orderToUpdate) {
+        const updatedOrder = { ...orderToUpdate, paymentStatus: newStatus };
+        await saveOrder(updatedOrder);
+        // Refresh orders
+        const refreshed = await fetchOrders();
+        setOrders(refreshed);
+      }
+    });
   };
 
-  const cancelOrder = (orderId: string) => {
-    const order = orders.find(o => o.id === orderId);
-    if (!order) return;
-
-    const confirmMessage = `Are you sure you want to cancel order #${orderId}?\n\nCustomer: ${order.customerName}\nTotal: ₹${order.total}\n\nThis action cannot be undone.`;
-
-    if (confirm(confirmMessage)) {
-      const updatedOrders = orders.map(order =>
-        order.id === orderId
-          ? { ...order, status: 'cancelled' as const, paymentStatus: 'failed' as const }
-          : order
-      );
-      saveOrders(updatedOrders);
-      alert(`Order #${orderId} has been cancelled successfully.`);
-    }
+  const cancelOrder = async (orderId: string) => {
+    import('../../../../utils/firestoreOrders').then(async ({ fetchOrders, saveOrder }) => {
+      const allOrders = await fetchOrders();
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) return;
+      const confirmMessage = `Are you sure you want to cancel order #${orderId}?\n\nCustomer: ${order.customerName}\nTotal: ₹${order.total}\n\nThis action cannot be undone.`;
+      if (confirm(confirmMessage)) {
+        const updatedOrder = { ...order, status: 'cancelled', paymentStatus: 'failed' };
+        await saveOrder(updatedOrder);
+        alert(`Order #${orderId} has been cancelled successfully.`);
+        // Refresh orders
+        const refreshed = await fetchOrders();
+        setOrders(Array.isArray(refreshed)
+          ? (refreshed.filter(o =>
+              o.id && o.customerName && o.customerPhone && o.items && o.total && o.status && o.orderType && o.paymentMethod && o.paymentStatus && o.timestamp
+            ) as Order[])
+          : []);
+      }
+    });
   };
 
   const connectPrinter = async () => {
@@ -319,7 +271,7 @@ export default function OrdersManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -378,9 +330,52 @@ export default function OrdersManagement() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search and Filter Controls */}
+        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
+          <input
+            type="text"
+            placeholder="Search by Order ID, Name, or Phone"
+            className="px-3 py-2 border border-gray-300 rounded-md mb-2 md:mb-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={e => setSearchTerm(e.target.value)}
+            value={searchTerm}
+            style={{ minWidth: 220 }}
+          />
+          <input
+            type="date"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={e => setSearchDate(e.target.value)}
+            value={searchDate}
+            style={{ minWidth: 160 }}
+          />
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-0 md:ml-2"
+            onClick={handleSearch}
+          >
+            Search
+          </button>
+          <button
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 ml-2"
+            onClick={handleClearSearch}
+          >
+            Clear
+          </button>
+        </div>
         {/* Orders List */}
         <div className="space-y-4">
-          {filteredOrders.map((order) => (
+          {filteredOrders
+            .filter(order => {
+              // Search by order ID, name, phone
+              const term = searchTerm.trim().toLowerCase();
+              const matchesTerm =
+                !term ||
+                order.id.toLowerCase().includes(term) ||
+                order.customerName.toLowerCase().includes(term) ||
+                order.customerPhone.toLowerCase().includes(term);
+              // Filter by date
+              const matchesDate = !searchDate || new Date(order.timestamp).toISOString().slice(0, 10) === searchDate;
+              return matchesTerm && matchesDate;
+            })
+            .map((order) => (
             <div key={order.id} className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -512,7 +507,16 @@ export default function OrdersManagement() {
           ))}
         </div>
 
-        {filteredOrders.length === 0 && (
+        {filteredOrders.filter(order => {
+          const term = searchTerm.trim().toLowerCase();
+          const matchesTerm =
+            !term ||
+            order.id.toLowerCase().includes(term) ||
+            order.customerName.toLowerCase().includes(term) ||
+            order.customerPhone.toLowerCase().includes(term);
+          const matchesDate = !searchDate || new Date(order.timestamp).toISOString().slice(0, 10) === searchDate;
+          return matchesTerm && matchesDate;
+        }).length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>

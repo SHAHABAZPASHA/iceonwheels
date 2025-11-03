@@ -3,50 +3,62 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { getAuth, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { db } from '../../../utils/firebase';
 
 interface User {
-  id: string;
-  username: string;
-  password: string;
-  role: 'owner' | 'partner' | 'manager' | 'admin';
-  name: string;
+  email: string;
+  name?: string;
+  role?: 'owner' | 'partner' | 'manager' | 'admin';
 }
 
 export default function AdminDashboard() {
+  interface FirestoreOrder {
+    id: string;
+    total?: number;
+    items?: { quantity?: number }[];
+  }
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    orders: 0,
+    revenue: 0,
+    itemsSold: 0,
+    activeItems: 0,
+  });
   const router = useRouter();
 
   useEffect(() => {
-    // Always require login: clear any stale user data if not valid
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        // Validate user object minimally
-        if (parsedUser && parsedUser.username && parsedUser.role) {
-          setUser(parsedUser);
-        } else {
-          localStorage.removeItem('adminUser');
-        }
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('adminUser');
+  const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser && firebaseUser.email === 'irfanpashask@gmail.com') {
+        setUser({ email: firebaseUser.email, name: firebaseUser.displayName || 'Admin' });
+        // Fetch today's orders from Firestore
+        import('../../../utils/firestoreOrders').then(({ fetchOrders }) => {
+          fetchOrders({ todayOnly: true }).then((orders: FirestoreOrder[]) => {
+            const revenue = orders.reduce((sum, o) => sum + (typeof o.total === 'number' ? o.total : 0), 0);
+            const itemsSold = orders.reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((s: number, i: { quantity?: number }) => s + (i.quantity || 0), 0) : 0), 0);
+            setStats({
+              orders: orders.length,
+              revenue,
+              itemsSold,
+              activeItems: 0, // TODO: fetch from menu if needed
+            });
+          });
+        });
+      } else {
+        setUser(null);
+        router.push('/admin/login');
       }
-    } else {
-      localStorage.removeItem('adminUser');
-    }
-    setIsLoading(false);
-  }, []);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
 
-  useEffect(() => {
-    if (!isLoading && user === null) {
-      router.push('/admin/login');
-    }
-  }, [user, isLoading, router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminUser');
+  const handleLogout = async () => {
+  const auth = getAuth();
+    await signOut(auth);
+    setUser(null);
     router.push('/admin/login');
   };
 
@@ -67,7 +79,7 @@ export default function AdminDashboard() {
               <img src="/logo.jpg" alt="Ice on Wheels" className="h-10 w-10 rounded-full mr-3" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-sm text-gray-500">Welcome back, {user.name}</p>
+                <p className="text-sm text-gray-500">Welcome back, {user.name || user.email}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -101,10 +113,10 @@ export default function AdminDashboard() {
                   { name: 'Users', id: 'users', icon: '👥', href: '/admin/dashboard/users' },
                   { name: 'Posters', id: 'posters', icon: '📢', href: '/admin/dashboard/posters' },
                 ].filter(item => {
-                  if (user.role === 'admin') return true;
-                  if (user.role === 'owner') return true;
-                  if (user.role === 'partner') return ['overview', 'menu', 'orders', 'inventory', 'promos'].includes(item.id);
-                  if (user.role === 'manager') return ['overview', 'orders', 'inventory'].includes(item.id);
+                  if (user && user.role === 'admin') return true;
+                  if (user && user.role === 'owner') return true;
+                  if (user && user.role === 'partner') return ['overview', 'menu', 'orders', 'inventory', 'promos'].includes(item.id);
+                  if (user && user.role === 'manager') return ['overview', 'orders', 'inventory'].includes(item.id);
                   return false;
                 }).map((item) => (
                   <li key={item.id}>
@@ -129,6 +141,28 @@ export default function AdminDashboard() {
           <div className="flex-1">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
+              {/* Admin Clear Data Button */}
+              {user && user.role === 'admin' && (
+                <button
+                  className="mb-6 px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to clear all orders? This cannot be undone.')) {
+                      import('../../../utils/firestoreOrders').then(({ clearOrders }) => {
+                        clearOrders().then(() => {
+                          alert('All orders cleared!');
+                          // Optionally refresh stats
+                          setStats(s => ({ ...s, orders: 0, revenue: 0, itemsSold: 0 }));
+                        }).catch((err) => {
+                          alert('Failed to clear orders.');
+                          console.error('Clear orders error:', err);
+                        });
+                      });
+                    }
+                  }}
+                >
+                  🗑️ Clear All Orders
+                </button>
+              )}
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -137,7 +171,7 @@ export default function AdminDashboard() {
                     <div className="text-3xl mr-4">📦</div>
                     <div>
                       <p className="text-blue-100">Today's Orders</p>
-                      <p className="text-2xl font-bold">24</p>
+                      <p className="text-2xl font-bold">{stats.orders}</p>
                     </div>
                   </div>
                 </div>
@@ -147,7 +181,7 @@ export default function AdminDashboard() {
                     <div className="text-3xl mr-4">💰</div>
                     <div>
                       <p className="text-green-100">Today's Revenue</p>
-                      <p className="text-2xl font-bold">₹2,450</p>
+                      <p className="text-2xl font-bold">₹{stats.revenue}</p>
                     </div>
                   </div>
                 </div>
@@ -157,7 +191,7 @@ export default function AdminDashboard() {
                     <div className="text-3xl mr-4">🍦</div>
                     <div>
                       <p className="text-purple-100">Items Sold</p>
-                      <p className="text-2xl font-bold">156</p>
+                      <p className="text-2xl font-bold">{stats.itemsSold}</p>
                     </div>
                   </div>
                 </div>
@@ -167,7 +201,7 @@ export default function AdminDashboard() {
                     <div className="text-3xl mr-4">⭐</div>
                     <div>
                       <p className="text-orange-100">Active Items</p>
-                      <p className="text-2xl font-bold">42</p>
+                      <p className="text-2xl font-bold">{stats.activeItems}</p>
                     </div>
                   </div>
                 </div>
@@ -184,8 +218,8 @@ export default function AdminDashboard() {
                     { href: '/admin/dashboard/users', icon: '👥', text: 'Manage Users', roles: ['admin', 'owner'] },
                     { href: '/admin/dashboard/posters', icon: '📢', text: 'Create Poster', roles: ['admin', 'owner'] },
                   ].filter(action => {
-                    if (user.role === 'admin') return true;
-                    return action.roles.includes(user.role);
+                    if (user && user.role === 'admin') return true;
+                    return user && user.role && action.roles.includes(user.role);
                   }).map((action) => (
                       // Only show features allowed for the user's role
                     <Link key={action.href} href={action.href} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all text-center block">

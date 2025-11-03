@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { iceCreamMenu } from '../../../../data/menu';
 import { AdminPromoCode, User } from '../../../../types';
+import {
+  fetchPromoCodes,
+  addPromoCode,
+  updatePromoCode,
+  deletePromoCode
+} from '../../../../utils/firestorePromos';
 
 export default function PromoCodesManagement() {
   const [user, setUser] = useState<User | null>(null);
@@ -49,62 +55,45 @@ export default function PromoCodesManagement() {
   useEffect(() => {
     if (!user) return;
 
-    // Load promo codes from localStorage or use default data
-    const storedPromos = localStorage.getItem('adminPromoCodes');
-    if (storedPromos) {
-      setPromoCodes(JSON.parse(storedPromos));
-    } else {
-      // Default promo codes
-      const defaultPromos: AdminPromoCode[] = [
-        {
-          id: '1',
-          code: 'WELCOME10',
-          description: '10% off on your first order',
-          discountType: 'percentage',
-          discountValue: 10,
-          minimumOrder: 200,
-          usageLimit: 100,
-          usedCount: 23,
-          validFrom: new Date().toISOString().split('T')[0],
-          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          active: true
-        },
-        {
-          id: '2',
-          code: 'FESTIVE50',
-          description: '₹50 off on orders above ₹300',
-          discountType: 'fixed',
-          discountValue: 50,
-          minimumOrder: 300,
-          usageLimit: 50,
-          usedCount: 12,
-          validFrom: new Date().toISOString().split('T')[0],
-          validUntil: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          active: true
-        },
-        {
-          id: '3',
-          code: 'BULK20',
-          description: '20% off on bulk orders (3+ items)',
-          discountType: 'percentage',
-          discountValue: 20,
-          minimumOrder: 400,
-          maximumDiscount: 100,
-          usageLimit: 25,
-          usedCount: 8,
-          validFrom: new Date().toISOString().split('T')[0],
-          validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          active: true
-        }
-      ];
-      setPromoCodes(defaultPromos);
-      localStorage.setItem('adminPromoCodes', JSON.stringify(defaultPromos));
-    }
+    // Load promo codes from Firestore
+    fetchPromoCodes().then(setPromoCodes);
   }, [user]);
 
-  const savePromoCodes = (updatedPromos: AdminPromoCode[]) => {
-    setPromoCodes(updatedPromos);
-    localStorage.setItem('adminPromoCodes', JSON.stringify(updatedPromos));
+
+  // Firestore-based save handlers
+  const savePromoCodes = async (updatedPromos: AdminPromoCode[]) => {
+    // For each promo, update or add in Firestore
+    for (const promo of updatedPromos) {
+      if (promo.id) {
+        await updatePromoCode(promo.id, promo);
+      } else {
+        await addPromoCode(promo);
+      }
+    }
+    const codes = await fetchPromoCodes();
+    setPromoCodes(codes);
+  };
+
+  const handleAddPromo = async (newPromo: Omit<AdminPromoCode, 'id' | 'usedCount'>) => {
+    if (!user || user.role !== 'admin') {
+      alert('Only admin can create promo codes.');
+      return;
+    }
+    await addPromoCode({ ...newPromo, usedCount: 0 });
+    const codes = await fetchPromoCodes();
+    setPromoCodes(codes);
+  };
+
+  const handleEditPromo = async (id: string, promo: Partial<AdminPromoCode>) => {
+    await updatePromoCode(id, promo);
+    const codes = await fetchPromoCodes();
+    setPromoCodes(codes);
+  };
+
+  const handleDeletePromo = async (id: string) => {
+    await deletePromoCode(id);
+    const codes = await fetchPromoCodes();
+    setPromoCodes(codes);
   };
 
   const handleAddPromo = (newPromo: Omit<AdminPromoCode, 'id' | 'usedCount'>) => {

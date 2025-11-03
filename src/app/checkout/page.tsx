@@ -155,22 +155,17 @@ export default function CheckoutPage() {
       timestamp: order.timestamp
     });
     setPlacedOrderTotal(order.total);
-
-    // Save order to localStorage for admin
-    const existingOrders = JSON.parse(localStorage.getItem('adminOrders') || '[]');
-    existingOrders.push(order);
-    localStorage.setItem('adminOrders', JSON.stringify(existingOrders));
-
-    // Clear cart after successful order
-    dispatch({ type: 'CLEAR_CART' });
-
-    // Simulate order placement
-    setOrderPlaced(true);
-
-    // In a real app, this would send the order to a backend
-    setTimeout(() => {
-      alert('Order placed successfully! You will receive a confirmation shortly.');
-    }, 1000);
+      // Save order to Firestore
+      import('../../utils/firestoreOrders').then(({ saveOrder }) => {
+        saveOrder(order).then(() => {
+          dispatch({ type: 'CLEAR_CART' });
+          setOrderPlaced(true);
+          alert('Order placed successfully! You will receive a confirmation shortly.');
+        }).catch((err) => {
+          alert('Failed to save order. Please try again.');
+          console.error('Order save error:', err);
+        });
+      });
   };
 
   const handleOpenUpiApp = () => {
