@@ -157,6 +157,8 @@ export default function PromosPage() {
     </div>
   );
 }
+}
+
 
 
 
