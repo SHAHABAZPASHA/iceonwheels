@@ -68,7 +68,6 @@ export default function OrdersManagement() {
     });
     return () => unsubscribe();
   }, [router]);
-  }, []);
 
   // Fetch orders from Firestore
   useEffect(() => {

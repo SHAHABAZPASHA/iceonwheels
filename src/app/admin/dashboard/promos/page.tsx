@@ -1,5 +1,13 @@
-'use client';
 
+  fetchPromoCodes,
+  addPromoCode,
+  updatePromoCode,
+  deletePromoCode
+} from '../../../../utils/firestorePromos';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+ 'use client';
+
+import {
   fetchPromoCodes,
   addPromoCode,
   updatePromoCode,
