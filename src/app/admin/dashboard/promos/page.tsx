@@ -401,4 +401,5 @@ function PromoModal({ promo, onSave, onClose, onGenerateCode }: PromoModalProps)
   );
 }
 
+
 "use client";
