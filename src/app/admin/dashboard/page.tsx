@@ -112,13 +112,7 @@ export default function AdminDashboard() {
                   { name: 'Promo Codes', id: 'promos', icon: '🎫', href: '/admin/dashboard/promos' },
                   { name: 'Users', id: 'users', icon: '👥', href: '/admin/dashboard/users' },
                   { name: 'Posters', id: 'posters', icon: '📢', href: '/admin/dashboard/posters' },
-                ].filter(item => {
-                  if (user && user.role === 'admin') return true;
-                  if (user && user.role === 'owner') return true;
-                  if (user && user.role === 'partner') return ['overview', 'menu', 'orders', 'inventory', 'promos'].includes(item.id);
-                  if (user && user.role === 'manager') return ['overview', 'orders', 'inventory'].includes(item.id);
-                  return false;
-                }).map((item) => (
+                ].map((item) => (
                   <li key={item.id}>
                     {item.href ? (
                       <Link href={item.href} className="w-full flex items-center px-4 py-3 text-left rounded-md transition-colors text-gray-700 hover:bg-gray-100 block">
