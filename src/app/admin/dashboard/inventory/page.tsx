@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface User {
   id: string;
@@ -34,7 +35,7 @@ interface InventoryModalProps {
 }
 
 export default function InventoryManagement() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [filter, setFilter] = useState<string>('all');
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -43,20 +44,17 @@ export default function InventoryManagement() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('adminUser');
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        setUser(null);
         router.push('/admin/login');
       }
-    } else {
-      router.push('/admin/login');
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {
@@ -67,10 +65,7 @@ export default function InventoryManagement() {
 
     if (!isLoading && user) {
       // Check permissions
-      if (user.role !== 'owner' && user.role !== 'partner' && user.role !== 'manager' && user.role !== 'admin') {
-        router.push('/admin/dashboard');
-        return;
-      }
+      // Remove role check, allow any authenticated user
     }
   }, [isLoading, user]);
 

@@ -1,19 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { iceCreamMenu } from '../../../../data/menu';
-import { AdminPromoCode, User } from '../../../../types';
-import {
   fetchPromoCodes,
   addPromoCode,
   updatePromoCode,
   deletePromoCode
 } from '../../../../utils/firestorePromos';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
-export default function PromoCodesManagement() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [promoCodes, setPromoCodes] = useState<AdminPromoCode[]>([]);
   const [isAddingPromo, setIsAddingPromo] = useState(false);
   const [editingPromo, setEditingPromo] = useState<AdminPromoCode | null>(null);
@@ -21,20 +15,17 @@ export default function PromoCodesManagement() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('adminUser');
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        setUser(null);
         router.push('/admin/login');
       }
-    } else {
-      router.push('/admin/login');
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {
@@ -45,10 +36,7 @@ export default function PromoCodesManagement() {
 
     if (!isLoading && user) {
       // Check permissions
-      if (user.role !== 'owner' && user.role !== 'partner' && user.role !== 'admin') {
-        router.push('/admin/dashboard');
-        return;
-      }
+      // Remove role check, allow any authenticated user
     }
   }, [user, isLoading, router]);
 

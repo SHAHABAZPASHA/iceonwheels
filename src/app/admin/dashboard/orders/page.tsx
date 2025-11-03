@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getBluetoothPrinter } from '../../../../utils/bluetoothPrinter';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface User {
   id: string;
@@ -41,12 +42,11 @@ export default function OrdersManagement() {
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [searchDate, setSearchDate] = useState('');
-  // Remove duplicate handleSearch
   const handleClearSearch = () => {
     setSearchTerm('');
     setSearchDate('');
   };
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -56,9 +56,18 @@ export default function OrdersManagement() {
   const router = useRouter();
 
   useEffect(() => {
-    // TODO: Replace with Firebase Auth user check if needed
-    setUser({ id: 'admin', username: 'admin', password: '', role: 'admin', name: 'Admin' });
-    setIsLoading(false);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        setUser(null);
+        router.push('/admin/login');
+      }
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
   }, []);
 
   // Fetch orders from Firestore

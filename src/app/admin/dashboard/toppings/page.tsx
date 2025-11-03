@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User } from '../../../../types';
+import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface Topping {
   id: string;
@@ -147,7 +147,7 @@ function ToppingModal({ topping, onSave, onClose }: ToppingModalProps) {
 }
 
 export default function ToppingsManagement() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [toppings, setToppings] = useState<Topping[]>([]);
   const [isAddingTopping, setIsAddingTopping] = useState(false);
   const [editingTopping, setEditingTopping] = useState<Topping | null>(null);
@@ -155,20 +155,17 @@ export default function ToppingsManagement() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('adminUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('adminUser');
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        setUser(null);
         router.push('/admin/login');
       }
-    } else {
-      router.push('/admin/login');
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {
