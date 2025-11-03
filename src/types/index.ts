@@ -26,7 +26,17 @@ export interface IceCreamItem {
   createdAt?: string; // Creation date (admin only)
 }
 
-export interface CartItem extends IceCreamItem {
+export interface CartItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  emoji: string;
+  category: string;
+  image?: string;
+  available?: boolean;
+  popularity?: number;
+  createdAt?: string;
   quantity: number;
   customizations?: {
     size?: 'small' | 'medium' | 'large';
