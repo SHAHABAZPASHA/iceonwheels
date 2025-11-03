@@ -96,43 +96,6 @@ export default function PromoCodesManagement() {
     setPromoCodes(codes);
   };
 
-  const handleAddPromo = (newPromo: Omit<AdminPromoCode, 'id' | 'usedCount'>) => {
-    if (!user || user.role !== 'admin') {
-      alert('Only admin can create promo codes.');
-      return;
-    }
-    const promo: AdminPromoCode = {
-      ...newPromo,
-      id: Date.now().toString(),
-      usedCount: 0
-    };
-    const updatedPromos = [...promoCodes, promo];
-    savePromoCodes(updatedPromos);
-    setIsAddingPromo(false);
-  };
-
-  const handleEditPromo = (updatedPromo: AdminPromoCode) => {
-    if (!user || user.role !== 'admin') {
-      alert('Only admin can edit promo codes.');
-      return;
-    }
-    const updatedPromos = promoCodes.map(promo =>
-      promo.id === updatedPromo.id ? updatedPromo : promo
-    );
-    savePromoCodes(updatedPromos);
-    setEditingPromo(null);
-  };
-
-  const handleDeletePromo = (id: string) => {
-    if (!user || user.role !== 'admin') {
-      alert('Only admin can delete promo codes.');
-      return;
-    }
-    if (confirm('Are you sure you want to delete this promo code?')) {
-      const updatedPromos = promoCodes.filter(promo => promo.id !== id);
-      savePromoCodes(updatedPromos);
-    }
-  };
 
   const togglePromoStatus = (id: string) => {
     const updatedPromos = promoCodes.map(promo =>
