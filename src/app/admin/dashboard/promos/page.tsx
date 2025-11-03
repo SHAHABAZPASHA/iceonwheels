@@ -400,3 +400,5 @@ function PromoModal({ promo, onSave, onClose, onGenerateCode }: PromoModalProps)
     </div>
   );
 }
+
+"use client";
