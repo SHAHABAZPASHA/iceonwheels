@@ -1,11 +1,11 @@
-import { collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, where, Query, DocumentData } from 'firebase/firestore';
 import { db } from './firebase';
 const ORDERS_COLLECTION = 'orders';
 
 // Search orders by orderId, name, phone, and date range
 export async function searchOrders({ orderId, name, phone, date }: { orderId?: string; name?: string; phone?: string; date?: string }) {
   const ordersRef = collection(db, ORDERS_COLLECTION);
-  let q = ordersRef;
+  let q: Query<DocumentData> = ordersRef;
   const filters = [];
   if (orderId) filters.push(where('id', '==', orderId));
   if (name) filters.push(where('customerName', '>=', name), where('customerName', '<=', name + '\uf8ff'));
