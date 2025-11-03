@@ -30,30 +30,30 @@ export default function AdminDashboard() {
 
   useEffect(() => {
   const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser && firebaseUser.email === 'irfanpashask@gmail.com') {
-        setUser({ email: firebaseUser.email, name: firebaseUser.displayName || 'Admin' });
-        // Fetch today's orders from Firestore
-        import('../../../utils/firestoreOrders').then(({ fetchOrders }) => {
-          fetchOrders({ todayOnly: true }).then((orders: FirestoreOrder[]) => {
-            const revenue = orders.reduce((sum, o) => sum + (typeof o.total === 'number' ? o.total : 0), 0);
-            const itemsSold = orders.reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((s: number, i: { quantity?: number }) => s + (i.quantity || 0), 0) : 0), 0);
-            setStats({
-              orders: orders.length,
-              revenue,
-              itemsSold,
-              activeItems: 0, // TODO: fetch from menu if needed
-            });
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+    if (firebaseUser && firebaseUser.email) {
+      setUser({ email: firebaseUser.email, name: firebaseUser.displayName || 'Admin' });
+      // Fetch today's orders from Firestore
+      import('../../../utils/firestoreOrders').then(({ fetchOrders }) => {
+        fetchOrders({ todayOnly: true }).then((orders: FirestoreOrder[]) => {
+          const revenue = orders.reduce((sum, o) => sum + (typeof o.total === 'number' ? o.total : 0), 0);
+          const itemsSold = orders.reduce((sum, o) => sum + (Array.isArray(o.items) ? o.items.reduce((s: number, i: { quantity?: number }) => s + (i.quantity || 0), 0) : 0), 0);
+          setStats({
+            orders: orders.length,
+            revenue,
+            itemsSold,
+            activeItems: 0, // TODO: fetch from menu if needed
           });
         });
-      } else {
-        setUser(null);
-        router.push('/admin/login');
-      }
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, [router]);
+      });
+    } else {
+      setUser(null);
+      router.push('/admin/login');
+    }
+    setIsLoading(false);
+  });
+  return () => unsubscribe();
+}, [router]);
 
   const handleLogout = async () => {
   const auth = getAuth();
