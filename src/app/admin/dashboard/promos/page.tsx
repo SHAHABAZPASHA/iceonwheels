@@ -116,6 +116,7 @@ export default function PromosPage() {
   }
 
   return (
+
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
@@ -128,7 +129,7 @@ export default function PromosPage() {
               Create First Promo Code
             </button>
           </div>
-
+        </div>
         {/* Add/Edit Modal */}
         {(isAddingPromo || editingPromo) && (
           <PromoModal
@@ -152,11 +153,12 @@ export default function PromosPage() {
             onGenerateCode={generateRandomCode}
           />
         )}
-      </div>
+      </header>
     </div>
   );
 }
-}
+
+
 
 interface PromoModalProps {
   promo?: AdminPromoCode | null;
@@ -209,7 +211,6 @@ function PromoModal({ promo, onSave, onClose, onGenerateCode }: PromoModalProps)
       // Adding new promo
       const promoData: Omit<AdminPromoCode, 'id' | 'usedCount'> = basePromoData;
       onSave(promoData as AdminPromoCode);
-    }
   };
 
   return (
