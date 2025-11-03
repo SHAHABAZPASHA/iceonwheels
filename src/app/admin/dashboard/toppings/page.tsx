@@ -147,7 +147,7 @@ function ToppingModal({ topping, onSave, onClose }: ToppingModalProps) {
 }
 
 export default function ToppingsManagement() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<import('../../../../types').User | null>(null);
   const [toppings, setToppings] = useState<Topping[]>([]);
   const [isAddingTopping, setIsAddingTopping] = useState(false);
   const [editingTopping, setEditingTopping] = useState<Topping | null>(null);
@@ -158,7 +158,20 @@ export default function ToppingsManagement() {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
+        // Map FirebaseUser to custom User type
+        const mappedUser = {
+          id: firebaseUser.uid,
+          username: firebaseUser.displayName || firebaseUser.email || 'unknown',
+          password: '', // Not available from Firebase
+          role: (firebaseUser as any).role || 'admin', // Default to 'admin' if not present
+          name: firebaseUser.displayName || 'Unknown',
+          email: firebaseUser.email || '',
+          phone: firebaseUser.phoneNumber || '',
+          active: true,
+          lastLogin: '',
+          createdAt: '',
+        };
+        setUser(mappedUser);
       } else {
         setUser(null);
         router.push('/admin/login');
