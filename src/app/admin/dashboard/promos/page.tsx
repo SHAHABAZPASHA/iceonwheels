@@ -268,7 +268,18 @@ export default function PromoCodesManagement() {
         {(isAddingPromo || editingPromo) && (
           <PromoModal
             promo={editingPromo}
-            onSave={editingPromo ? handleEditPromo : handleAddPromo}
+            onSave={async (promo: AdminPromoCode) => {
+              if (editingPromo) {
+                // Editing: pass id and partial promo
+                await handleEditPromo(promo.id, promo);
+                setEditingPromo(null);
+              } else {
+                // Adding: pass Omit<AdminPromoCode, 'id' | 'usedCount'>
+                const { id, usedCount, ...newPromo } = promo;
+                await handleAddPromo(newPromo);
+                setIsAddingPromo(false);
+              }
+            }}
             onClose={() => {
               setIsAddingPromo(false);
               setEditingPromo(null);
