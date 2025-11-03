@@ -13,16 +13,57 @@ export default function Menu() {
   const [selectedItem, setSelectedItem] = useState<IceCreamItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
-  const [menuData, setMenuData] = useState<IceCreamItem[]>([]);
+    const [menuData, setMenuData] = useState<IceCreamItem[]>([]);
   const { dispatch } = useCart();
 
   // Load menu items from Firestore
   useEffect(() => {
     async function loadMenu() {
-      const items = await fetchMenuItems();
-      setMenuData(items);
+      try {
+        const items = await fetchMenuItems();
+        if (items && items.length > 0) {
+            setMenuItems(items);
+        } else {
+          // Fallback to local menu data if Firestore is empty
+          const localMenu = (await import('../data/menu')).iceCreamMenu;
+            setMenuItems(localMenu);
+          console.warn('Firestore menu empty, loaded local menu data.');
+        }
+      } catch (error) {
+        // Fallback to local menu data if Firestore fetch fails
+        const localMenu = (await import('../data/menu')).iceCreamMenu;
+          setMenuItems(localMenu);
+        console.error('Failed to fetch menu from Firestore:', error);
+      }
     }
-    loadMenu();
+    let didFallback = false;
+    const fetchMenu = async () => {
+      try {
+        const items = await fetchMenuItems();
+        if (items && items.length > 0) {
+          setMenuItems(items);
+        } else {
+          setMenuItems(localMenu);
+          didFallback = true;
+        }
+      } catch (err) {
+        setMenuItems(localMenu);
+        setError("Unable to load menu from Firestore. Showing local menu.");
+        didFallback = true;
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMenu();
+    // If Firestore is slow or unreachable, fallback instantly after 1.5s
+    const fallbackTimeout = setTimeout(() => {
+      if (loading && !didFallback) {
+        setMenuItems(localMenu);
+        setError("Menu loaded from local data due to Firestore timeout.");
+        setLoading(false);
+      }
+    }, 1500);
+    return () => clearTimeout(fallbackTimeout);
   }, []);
 
   const categories = ['All', ...Array.from(new Set(menuData.map(item => item.category)))];
