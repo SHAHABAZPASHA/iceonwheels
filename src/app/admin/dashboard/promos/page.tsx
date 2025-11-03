@@ -1,5 +1,7 @@
 
 
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   fetchPromoCodes,
   addPromoCode,
@@ -7,7 +9,10 @@ import {
   deletePromoCode
 } from '../../../../utils/firestorePromos';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { AdminPromoCode } from '../../../../types';
+import { iceCreamMenu } from '../../../../data/menu';
 
+export default function PromosPage() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [promoCodes, setPromoCodes] = useState<AdminPromoCode[]>([]);
   const [isAddingPromo, setIsAddingPromo] = useState(false);
@@ -35,10 +40,10 @@ import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth
       return;
     }
 
-    if (!isLoading && user) {
-      // Check permissions
-      // Remove role check, allow any authenticated user
-    }
+  if (!isLoading && user) {
+    // Check permissions
+    // Remove role check, allow any authenticated user
+  }
   }, [user, isLoading, router]);
 
   useEffect(() => {
@@ -64,8 +69,8 @@ import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth
   };
 
   const handleAddPromo = async (newPromo: Omit<AdminPromoCode, 'id' | 'usedCount'>) => {
-    if (!user || user.role !== 'admin') {
-      alert('Only admin can create promo codes.');
+    if (!user) {
+      alert('You must be logged in to create promo codes.');
       return;
     }
     await addPromoCode({ ...newPromo, usedCount: 0 });
@@ -116,136 +121,6 @@ import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Link href="/admin/dashboard" className="text-blue-600 hover:text-blue-800 mr-4">
-                ← Back to Dashboard
-              </Link>
-              <h1 className="text-xl font-bold text-gray-900">Promo Codes Management</h1>
-            </div>
-            <button
-              onClick={() => setIsAddingPromo(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-            >
-              + Create Promo Code
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Promo Codes List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {promoCodes.map((promo) => (
-            <div key={promo.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{promo.code}</h3>
-                    <p className="text-sm text-gray-600">{promo.description}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => togglePromoStatus(promo.id)}
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        promo.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {promo.active ? 'Active' : 'Inactive'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm text-gray-600 mb-4">
-                  <div className="flex justify-between">
-                    <span>Discount:</span>
-                    <span className="font-medium text-blue-600">
-                      {promo.discountType === 'percentage'
-                        ? `${promo.discountValue}%`
-                        : `₹${promo.discountValue}`
-                      }
-                      {promo.maximumDiscount && promo.discountType === 'percentage' &&
-                        ` (max ₹${promo.maximumDiscount})`
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Min Order:</span>
-                    <span>₹{promo.minimumOrder}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Usage:</span>
-                    <span>
-                      {promo.usedCount}
-                      {promo.usageLimit && ` / ${promo.usageLimit}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Valid Until:</span>
-                    <span>{new Date(promo.validUntil).toLocaleDateString()}</span>
-                  </div>
-                  {promo.applicableItems && promo.applicableItems.length > 0 && (
-                    <div className="mt-2">
-                      <span className="text-xs font-medium text-gray-500">Applicable Items:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {promo.applicableItems.slice(0, 3).map((itemId: string) => {
-                          const item = iceCreamMenu.find(i => i.id === itemId);
-                          return item ? (
-                            <span key={itemId} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                              {item.emoji} {item.name}
-                            </span>
-                          ) : null;
-                        })}
-                        {promo.applicableItems.length > 3 && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                            +{promo.applicableItems.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div className="text-xs text-gray-500">
-                    {promo.usageLimit && promo.usedCount >= promo.usageLimit
-                      ? 'Usage limit reached'
-                      : new Date(promo.validUntil) < new Date()
-                        ? 'Expired'
-                        : 'Valid'
-                    }
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setEditingPromo(promo)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeletePromo(promo.id)}
-                      className="text-red-600 hover:text-red-800 text-sm font-medium"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {promoCodes.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎫</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No promo codes yet</h3>
-            <p className="text-gray-600 mb-4">
-              Create your first promo code to offer discounts to customers.
-            </p>
-            <button
-              onClick={() => setIsAddingPromo(true)}
               className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
               Create First Promo Code
@@ -279,6 +154,7 @@ import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth
       </div>
     </div>
   );
+}
 }
 
 interface PromoModalProps {
@@ -541,4 +417,3 @@ function PromoModal({ promo, onSave, onClose, onGenerateCode }: PromoModalProps)
       </div>
     </div>
   );
-}
