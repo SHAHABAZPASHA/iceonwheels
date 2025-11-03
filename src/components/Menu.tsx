@@ -154,11 +154,11 @@ export default function Menu() {
             >
               {/* Show unavailable items with message and disabled button */}
               <MenuItem
-                item={item}
-                onCustomize={item.available ? handleCustomize : undefined}
+                item={{ ...item, available: item.available !== false }}
+                onCustomize={handleCustomize}
                 quantity={itemQuantities[item.id] || 1}
-                onQuantityChange={item.available ? (quantity) => updateQuantity(item.id, quantity) : undefined}
-                unavailableMessage={!item.available ? 'Sorry, this item is currently unavailable.' : undefined}
+                onQuantityChange={(quantity) => updateQuantity(item.id, quantity)}
+                unavailableMessage={item.available === false ? 'Sorry, this item is currently unavailable.' : undefined}
               />
             </div>
           ))}
