@@ -1,4 +1,4 @@
-
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -402,4 +402,3 @@ function PromoModal({ promo, onSave, onClose, onGenerateCode }: PromoModalProps)
 }
 
 
-"use client";
