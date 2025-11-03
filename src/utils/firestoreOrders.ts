@@ -87,7 +87,7 @@ export async function saveOrder(order: any) {
 
 export async function fetchOrders({ todayOnly = false } = {}) {
   const ordersRef = collection(db, ORDERS_COLLECTION);
-  let q = ordersRef;
+  let q: Query<DocumentData> = ordersRef;
   if (todayOnly) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
