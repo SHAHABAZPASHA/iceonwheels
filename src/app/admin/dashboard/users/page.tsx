@@ -1,12 +1,14 @@
 'use client';
 
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import type { User } from '@/types/index';
 
 export default function UsersManagement() {
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -17,7 +19,20 @@ export default function UsersManagement() {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        setCurrentUser(firebaseUser);
+        // Map FirebaseUser to custom User type
+        const mappedUser: User = {
+          id: firebaseUser.uid,
+          username: firebaseUser.displayName || firebaseUser.email || 'unknown',
+          password: '', // Not available from Firebase
+          role: 'admin', // Default role, adjust as needed
+          name: firebaseUser.displayName || 'Unknown',
+          email: firebaseUser.email || '',
+          phone: firebaseUser.phoneNumber || '',
+          active: true,
+          lastLogin: '',
+          createdAt: ''
+        };
+        setCurrentUser(mappedUser);
       } else {
         setCurrentUser(null);
         router.push('/admin/login');
