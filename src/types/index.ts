@@ -1,3 +1,4 @@
+
 export interface Poster {
   id: string;
   title: string;
